@@ -116,6 +116,7 @@ public class Runner {
         RUNNERS.put("60308254099", new Runner("Aiste"));
         RUNNERS.put("60110036523", new Runner("KAROlina "));
         RUNNERS.put("50307269292", new Runner("Tauras"));
+        RUNNERS.put("50210092071", new Runner("Karolina "));
     }
 
     public static Set<String> getAllRunnersIDs() throws InterruptedException {

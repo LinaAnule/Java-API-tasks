@@ -40,8 +40,5 @@ public class ImmutabilityTask {
         long totalTime = endTime - startTime;
         System.out.println(totalTime + " ms");
 
-        Optional<Runner> isRunner = Optional.ofNullable(Runner.getRunnerById("YESSS"));
-        isRunner.ifPresent();
-
     }
 }
