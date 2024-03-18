@@ -1,10 +1,13 @@
 import java.awt.*;
 import java.lang.reflect.Type;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class StringTask {
@@ -32,6 +35,7 @@ public class StringTask {
                                 .build();
 
                         runners.add(nwRunner);
+
                     }
 
                 } catch (InterruptedException e) {
@@ -40,11 +44,98 @@ public class StringTask {
             });
         }
 
-        printByRepeatedName(runners);
-        printByMatchingMonth(runners);
+        Function<Runner, Integer> isBornOnWeekend = (runner) -> {
+            DayOfWeek dayOfWeek = runner.getBirthDate().getDayOfWeek();
+            if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+                return 3;
+            }
+            return 0;
+        };
+
+        Function<Runner, Integer> isBornNotWinter = (runner) -> {
+            Month month = runner.getBirthDate().getMonth();
+            if (month != Month.DECEMBER && month != Month.JANUARY && month != Month.FEBRUARY) {
+                return 2;
+            }
+            return 0;
+        };
+
+        Function<Runner, Integer> isStartingNumber = (runner) -> {
+            int startingNumber = runner.getStartingNumber();
+            if (startingNumber <= 25 && startingNumber > 0) {
+                return 1;
+            }
+            return 0;
+        };
+
+        AdvantagePointsCalculator calculateAdvantagePoints = (runners1, functions) -> {
+            List<Runner> runnersWithAdvPoints = new CopyOnWriteArrayList<>();
+            for (Runner runner : runners1) {
+                Integer advPoints = 0;
+                for (Function function : functions) {
+                    advPoints = advPoints + (Integer) function.apply(runner);
+                }
+                Runner newRunner = Runner.Builder.builder()
+                        .withName(runner.getName())
+                        .withPersonalId(runner.getPersonalId())
+                        .withStartingNumber(runner.getStartingNumber())
+                        .withBirthDate(runner.getBirthDate())
+                        .withAdvantagePoints(advPoints)
+                        .build();
+                runnersWithAdvPoints.add(newRunner);
+            }
+            return runnersWithAdvPoints;
+        };
+
+        List<Function> functionList = new ArrayList<>();
+        functionList.add(isBornOnWeekend);
+        functionList.add(isBornNotWinter);
+        functionList.add(isStartingNumber);
+        List<Runner> runnerList = calculateAdvantagePoints.calculatePoints(runners, functionList);
+        sortWinners(runnerList);
+//        printByRepeatedName(runners);
+//        printByMatchingMonth(runners);
+
         long endTime = System.currentTimeMillis();
+
         long totalTime = endTime - startTime;
         System.out.println(totalTime + " ms");
+
+
+    }
+
+    private static void sortWinners(List<Runner> runners) {
+        runners.sort(Comparator.comparing(Runner::getAdvantagePoints).reversed());
+        int advPoints = 0;
+        int positions = 0;
+        for (Runner runner : runners) {
+            if (positions == 4) {
+                break;
+            }
+            System.out.println(runner);
+
+            if (advPoints != runner.getAdvantagePoints()) {
+                positions += 1;
+                System.out.println(positions + " PLACE. HEy");
+                advPoints = runner.getAdvantagePoints();
+
+            }
+
+        }
+
+
+//        List<Integer> distinctAdvantagePoints = runners.stream()
+//                .map(Runner::getAdvantagePoints)
+//                .distinct()
+//                .sorted(Comparator.reverseOrder())
+//                .limit(3)
+//                .toList();
+//        System.out.println("WInners La La La");
+//        runners.stream()
+//                .filter(runner -> distinctAdvantagePoints.contains(runner.getAdvantagePoints()))
+//                .sorted(Comparator.comparing(Runner::getAdvantagePoints).reversed())
+//                .forEach( System.out::println);
+
 
     }
 
@@ -89,6 +180,7 @@ public class StringTask {
             }
         }
     }
+
 
     public static LocalDate randomDate() {
 
