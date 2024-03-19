@@ -1,5 +1,3 @@
-import java.awt.*;
-import java.lang.reflect.Type;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
@@ -8,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+
 
 public class StringTask {
 
